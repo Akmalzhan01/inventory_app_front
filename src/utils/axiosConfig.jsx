@@ -22,7 +22,7 @@ instance.interceptors.response.use(response => {
 }, error => {
   if (error.response?.status === 401) {
     localStorage.removeItem('token');
-    window.location.href = 'https://inventory-app-karasuu.netlify.app/login';
+    window.location.href = 'https://inventory-app-front.netlify.app/login';
   }
   return Promise.reject(error);
 });
