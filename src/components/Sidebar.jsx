@@ -26,7 +26,7 @@ const Sidebar = () => {
       { name: 'Зарплата сотрудника', href: '/salaries', icon: BanknotesIcon },
       { name: 'Клиенты', href: '/customers', icon: UsersIcon },
       { name: 'Cотрудники', href: '/employee', icon: UserGroupIcon },
-      { name: 'Росходы', href: '/expend', icon: CurrencyDollarIcon },
+      { name: 'Расходы', href: '/expend', icon: CurrencyDollarIcon },
       { name: 'Занимать', href: '/borrow', icon: InboxArrowDownIcon },
       { name: 'Отчёт', href: '/report', icon: PuzzlePieceIcon },
     // ] : [])

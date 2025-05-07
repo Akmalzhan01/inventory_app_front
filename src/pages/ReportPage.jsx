@@ -91,63 +91,64 @@ export default function InventoryReport() {
   }
 
   const stats = [
-    { 
-      name: 'Общие продажи', 
-      value: `${reportData?.sum.sale.totalSale.totalSaleSum?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Общие продажи',
+      value: `${reportData?.sum.sale.totalSale.totalSaleSum?.toLocaleString()} $` || '0 $',
       icon: CurrencyDollarIcon,
       metric: 'Транзакций',
       metricValue: reportData?.salesCount || '0',
       metricIcon: ShoppingBagIcon
     },
-    { 
-      name: 'Оплаченная сумма', 
-      value: `${reportData?.sum.sale.totalSale.paidAmountSaleSum?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Оплаченная сумма',
+      value: `${reportData?.sum.sale.totalSale.paidAmountSaleSum?.toLocaleString()} $` || '0 $',
       icon: BanknotesIcon,
       metric: 'Полностью оплачено',
       metricValue: reportData?.paidSalesCount || '0',
       metricIcon: CheckCircleIcon
     },
-    { 
-      name: 'Кредит', 
-      value: `${reportData?.sum.sale.credit?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Кредит',
+      value: `${reportData?.sum.sale.credit?.toLocaleString()} $` || '0 $',
       icon: CreditCardIcon,
       metric: 'В ожидании оплаты',
       metricValue: reportData?.creditSalesCount || '0',
       metricIcon: ClockIcon
     },
-    { 
-      name: 'Общая стоимость товаров', 
-      value: `${reportData?.sum.products.totalProduct?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Общая стоимость товаров',
+      value: `${reportData?.sum.products.totalProduct?.toLocaleString()} $` || '0 $',
       icon: CubeIcon,
       metric: 'Единиц на складе',
       metricValue: reportData?.totalItemsInStock || '0',
       metricIcon: ArchiveBoxIcon
     },
-    { 
-      name: 'Расходы на зарплаты', 
-      value: `${reportData?.sum.salary.totalSalary?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Расходы на зарплаты',
+      value: `${reportData?.sum.salary.totalSalary?.toLocaleString()} $` || '0 $',
       icon: UsersIcon,
       metric: 'Сотрудников',
       metricValue: reportData?.employeesCount || '0',
       metricIcon: UsersIcon
     },
-    { 
-      name: 'Заемные товары', 
-      value: `${reportData?.sum.borrow.totalItemsSum?.toLocaleString()} $` || '0 $', 
+    {
+      name: 'Заемные товары',
+      value: `${reportData?.sum.borrow.totalItemsSum?.toLocaleString()} $` || '0 $',
       icon: ClipboardDocumentCheckIcon,
       metric: 'Активных займов',
       metricValue: reportData?.activeBorrowsCount || '0',
       metricIcon: ClipboardDocumentCheckIcon
     },
-    
+
   ];
 
+  const tot = reportData?.sum.sale.totalSale.paidAmountSaleSum - (reportData?.sum.salary.totalSalary + reportData?.sum.borrow.totalBorrowPaidAmount + reportData?.sum.expend.totalExpend)
 
   return (
     <div className="bg-gray-50 p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Отчет по инвентаризации</h1>
-        
+
         <div className="flex space-x-4">
           <div className="relative">
             <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-300">
@@ -163,7 +164,7 @@ export default function InventoryReport() {
               </select>
             </div>
           </div>
-          
+
           <div className="relative">
             <button
               onClick={() => setShowMonthDropdown(!showMonthDropdown)}
@@ -172,7 +173,7 @@ export default function InventoryReport() {
               <span>{months.find(m => m.id === month)?.name || 'Выберите месяц'}</span>
               <ChevronDownIcon className="h-4 w-4 text-gray-400" />
             </button>
-            
+
             {showMonthDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
                 <div className="py-1">
@@ -191,7 +192,7 @@ export default function InventoryReport() {
           </div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat) => (
           <div key={stat.name} className="bg-white overflow-hidden shadow rounded-lg">
@@ -222,7 +223,8 @@ export default function InventoryReport() {
         ))}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-1 gap-6">
+
         {/* Карточка сводки по продажам */}
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
@@ -249,6 +251,38 @@ export default function InventoryReport() {
                 <p className="text-sm font-medium text-gray-500">Кредит</p>
                 <p className="mt-1 text-xl font-semibold text-red-600">
                   {reportData?.sum.sale.credit?.toLocaleString() || 0} $
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Карточка сводки по расходом */}
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 flex items-center">
+              <CurrencyDollarIcon className="h-5 w-5 text-blue-500 mr-2" />
+              Сводка по расходом
+            </h3>
+          </div>
+          <div className="px-4 py-5 sm:p-6">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-500">Общие расходы</p>
+                <p className="mt-1 text-xl font-semibold text-gray-900">
+                  {(reportData?.sum.salary.totalSalary+reportData?.sum.expend.totalExpend)?.toLocaleString() || 0} $
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-500">Зарплата сотрудников</p>
+                <p className="mt-1 text-xl font-semibold text-green-600">
+                  {reportData?.sum.salary.totalSalary?.toLocaleString() || 0} $
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-500">Другие расходы</p>
+                <p className="mt-1 text-xl font-semibold text-red-600">
+                  {reportData?.sum.expend.totalExpend?.toLocaleString() || 0} $
                 </p>
               </div>
             </div>
@@ -286,22 +320,23 @@ export default function InventoryReport() {
             </div>
           </div>
         </div>
+
       </div>
 
       <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
           <h3 className="text-lg leading-6 font-medium text-gray-900 flex items-center">
             <UsersIcon className="h-5 w-5 text-indigo-500 mr-2" />
-            Расходы на зарплаты
+            Прибыль от продаж
           </h3>
         </div>
         <div className="px-4 py-5 sm:p-6">
           <div className="text-center">
-            <p className="text-3xl font-semibold text-gray-900">
-              {reportData?.sum.salary.totalSalary?.toLocaleString() || 0} $
+            <p className={`text-3xl font-semibold ${tot < 0 ? "text-red-600": "text-green-600"} text-gray-900`}>
+              {tot?.toLocaleString() || 0} $
             </p>
             <p className="mt-2 text-sm text-gray-500">
-              Общие ежемесячные расходы на зарплаты
+              Общие ежемесячные прибыли от продаж
             </p>
           </div>
         </div>
