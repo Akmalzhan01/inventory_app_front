@@ -236,7 +236,7 @@ export default function InventoryReport() {
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-500">Общие продажи</p>
                 <p className="mt-1 text-xl font-semibold text-gray-900">
-                  {reportData?.sum.sale.totalSale.totalSaleTotal?.toLocaleString() || 0} $
+                  {reportData?.sum.sale.totalSale.totalSaleSum?.toLocaleString() || 0} $
                 </p>
               </div>
               <div className="text-center">
