@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../utils/axiosConfig';
 import { toast } from 'react-toastify';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/AuthContext';
 import ProductTable from '../components/products/ProductTable';
 import Pagination from '../components/common/Pagination';
 
