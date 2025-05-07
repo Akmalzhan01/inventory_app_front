@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const SearchBar = ({

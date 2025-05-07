@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import { PencilIcon, TrashIcon, EyeIcon, ArrowPathIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import axios from '../../utils/axiosConfig';
 import { toast } from 'react-toastify';
