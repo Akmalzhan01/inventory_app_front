@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const instance = axios.create({
   baseURL: 'https://inventory-app-theta-two.vercel.app',
-  timeout: 10000,
+  timeout: 100000,
 });
 
 // Har bir so'rovdan oldin token qo'shish
