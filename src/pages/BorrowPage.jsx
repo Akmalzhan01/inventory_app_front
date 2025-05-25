@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
-import { PlusIcon } from '@heroicons/react/24/outline'
 
 function BorrowPage() {
 	const [borrows, setBorrows] = useState([])

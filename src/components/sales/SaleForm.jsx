@@ -3,7 +3,7 @@ import axios from '../../utils/axiosConfig';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 
-const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
+const SaleForm = ({ onCancel, setShowForm }) => {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -30,17 +30,17 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
         }
 
         // 2. So'rovlar uchun konfiguratsiya
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        };
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //     'Content-Type': 'application/json'
+        //   },
+        // };
 
         // 3. Parallel so'rovlar
         const [productsRes, customersRes] = await Promise.all([
-          axios.get('/api/products', config),
-          axios.get('/api/customers', config)
+          axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('/api/customers', { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         // 4. Ma'lumotlarni tekshirish
@@ -147,12 +147,12 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
       }
 
       // 2. So'rov tayyorlash
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      };
+      // const config = {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json'
+      //   }
+      // };
 
       // 3. Ma'lumotlarni tekshirish
       // if (!formData.product || !formData.customer || !formData.quantity) {
@@ -160,7 +160,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
       // }
 
       // 4. POST so'rovini yuborish
-      const response = await axios.post('/api/sales', formData);
+      const response = await axios.post('/api/sales', formData, { headers: { Authorization: `Bearer ${token}` } });
 
       // 5. Muvaffaqiyatli javobni qayta ishlash
       if (response.data.success) {

@@ -12,7 +12,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm] = useState(''); // setSearchTerm removed
 
   // Tovarlarni yuklash
   useEffect(() => {

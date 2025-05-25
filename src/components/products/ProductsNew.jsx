@@ -36,23 +36,6 @@ const ProductsNew = () => {
     }
   };
 
-  // Faylni o'zgartirish
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      setErrors(prev => ({
-        ...prev,
-        image: 'Размер изображения не должен превышать 5 МБ.'
-      }));
-      return;
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      image: file
-    }));
-  };
-
   // Formani yuborish
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,7 +73,7 @@ const ProductsNew = () => {
       data.append('category', formData.category);
       if (formData.image) data.append('image', formData.image);
 
-      const response = await axios.post('https://inventory-app-theta-two.vercel.app/api/products', formData);
+      await axios.post('https://inventory-app-theta-two.vercel.app/api/products', formData);
 
       toast.success('Продукт успешно добавлен');
       navigate('/products');
