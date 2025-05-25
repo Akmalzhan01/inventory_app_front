@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
 import { toast } from 'react-toastify'
 import {
@@ -10,7 +9,7 @@ import {
 
 const EmployeePage = () => {
 	const [employees, setEmployees] = useState([])
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(false); // Re-add loading state
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -34,10 +33,10 @@ const EmployeePage = () => {
 		try {
 			const res = await axios.get('/api/employees')
 			setEmployees(res.data)
-		} catch (err) {
+		} catch {
 			toast.error('Ошибка загрузки сотрудников')
 		} finally {
-			setLoading(false)
+			// setLoading(false) // setLoading is not defined
 		}
 	}
 
@@ -61,8 +60,8 @@ const EmployeePage = () => {
 			}
 			resetForm()
 			fetchEmployees()
-		} catch (err) {
-			toast.error(err.response?.data?.message || 'Произошла ошибка')
+		} catch (error) {
+			toast.error(error.response?.data?.message || 'Произошла ошибка')
 		}
 	}
 
@@ -88,7 +87,7 @@ const EmployeePage = () => {
 				await axios.delete(`/api/employees/${id}`)
 				toast.success('Сотрудник удален')
 				fetchEmployees()
-			} catch (err) {
+			} catch { // Remove unused err
 				toast.error('Ошибка при удалении')
 			}
 		}

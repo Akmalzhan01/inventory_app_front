@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../../utils/axiosConfig';
 import { toast } from 'react-toastify';
@@ -283,7 +283,7 @@ console.log(formData);
         {/* Rasm */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Yangi rasm yuklash (agar o'zgartirmoqchi bo'lsangiz)
+            Yangi rasm yuklash (agar o&apos;zgartirmoqchi bo&apos;lsangiz)
           </label>
           <input
             type="file"

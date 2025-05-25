@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from '../utils/axiosConfig';
 import { toast } from 'react-toastify';
@@ -16,9 +16,9 @@ const SalaryPage = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedMonth] = useState(new Date().getMonth() + 1); // setSelectedMonth removed
   const [selectedPaymentMonth, setSelectedPaymentMonth] = useState('');
-  const [selectedPaymentDate, setSelectedPaymentDate] = useState('');
+  // selectedPaymentDate and setSelectedPaymentDate removed
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSalary, setCurrentSalary] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -59,7 +59,7 @@ const SalaryPage = () => {
       const res = await axios.get('/api/employees');
       setEmployees(res.data);
 
-    } catch (err) {
+    } catch {
       toast.error('Не удалось загрузить список сотрудников');
     }
   };
@@ -75,7 +75,7 @@ const SalaryPage = () => {
       
       const res = await axios.get('/api/salaries', { params });
       setSalaries(res.data);
-    } catch (err) {
+    } catch {
       toast.error('Не удалось загрузить данные о зарплатах');
     } finally {
       setLoading(false);
@@ -138,8 +138,8 @@ const SalaryPage = () => {
 
       closeModal();
       fetchSalaries();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Ошибка сохранения данных');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Ошибка сохранения данных');
     } finally {
       setIsProcessing(false);
     }
@@ -169,7 +169,7 @@ const SalaryPage = () => {
         await axios.delete(`/api/salaries/${id}`);
         toast.success('Запись о зарплате удалена');
         fetchSalaries();
-      } catch (err) {
+      } catch {
         toast.error('Не удалось удалить запись');
       }
     }
@@ -250,7 +250,7 @@ const SalaryPage = () => {
               onChange={(e) => setSelectedPaymentMonth(e.target.value)}
               className="border rounded px-3 py-2 text-sm"
             >
-              <option value="">To'lov oyi</option>
+              <option value="">To&apos;lov oyi</option>
               {months.map(month => (
                 <option key={month.value} value={month.value}>
                   {month.name.charAt(0).toUpperCase() + month.name.slice(1)}
@@ -337,6 +337,7 @@ const SalaryPage = () => {
 
                   {/* Итоговая строка */}
                   <tr className="bg-gray-50 font-semibold">
+                    {/* eslint-disable-next-line react/no-unescaped-entities */}
                     <td className="px-6 py-4 whitespace-nowrap" colSpan="2">
                       Итого за {months[selectedMonth - 1]?.name} {selectedYear}:
                     </td>
@@ -360,7 +361,7 @@ const SalaryPage = () => {
               ) : (
                 <tr>
                   <td className="px-6 py-4 text-center text-gray-500" colSpan="8">
-                    {loading ? 'Загрузка данных...' : 'Нет данных о зарплатах за выбранный период'}
+                    {loading ? "Загрузка данных&hellip;" : "Нет данных о зарплатах за выбранный период"}
                   </td>
                 </tr>
               )}

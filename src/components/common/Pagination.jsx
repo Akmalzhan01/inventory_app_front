@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/20/solid';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
