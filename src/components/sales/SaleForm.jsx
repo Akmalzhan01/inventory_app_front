@@ -3,6 +3,7 @@ import axios from '../../utils/axiosConfig'
 import { useAuth } from '../../context/AuthContext'
 import { toast } from 'react-toastify'
 
+<<<<<<< HEAD
 // eslint-disable-next-line react/prop-types
 const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 	const { user } = useAuth()
@@ -19,6 +20,21 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		seller: user._id,
 		grandTotal: 0,
 	})
+=======
+const SaleForm = ({ onCancel, setShowForm }) => {
+  const { user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    customer: '',
+    items: [{ product: '', quantity: 1, price: 0 }],
+    isCredit: false,
+    paidAmount: 0,
+    notes: '',
+    seller: user._id
+  });
+>>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 	// Mahsulotlar va mijozlarni yuklash
 	useEffect(() => {
@@ -34,6 +50,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 					},
 				}
 
+<<<<<<< HEAD
 				const [productsRes, customersRes] = await Promise.all([
 					axios.get('/api/products?limit=1000', config),
 					axios.get('/api/customers?limit=1000', config),
@@ -43,6 +60,21 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 				setCustomers(customersRes.data.data || customersRes.data)
 			} catch (error) {
 				console.error('Maʼlumotlarni yuklashda xato:', error)
+=======
+        // 2. So'rovlar uchun konfiguratsiya
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //     'Content-Type': 'application/json'
+        //   },
+        // };
+
+        // 3. Parallel so'rovlar
+        const [productsRes, customersRes] = await Promise.all([
+          axios.get('/api/products', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('/api/customers', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+>>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 				if (error.response) {
 					switch (error.response.status) {
@@ -173,12 +205,22 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 			setLoading(true)
 			const token = localStorage.getItem('token')
 
+<<<<<<< HEAD
 			const config = {
 				headers: {
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json',
 				},
 			}
+=======
+      // 2. So'rov tayyorlash
+      // const config = {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`,
+      //     'Content-Type': 'application/json'
+      //   }
+      // };
+>>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 			// To'lov maʼlumotlarini tayyorlash
 			const paymentData = {
@@ -200,6 +242,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 						: [],
 			}
 
+<<<<<<< HEAD
 			// So'rov maʼlumotlarini tayyorlash
 			const requestData = {
 				customer: formData.customer,
@@ -214,6 +257,10 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 				...paymentData,
 			}
 			console.log(requestData)
+=======
+      // 4. POST so'rovini yuborish
+      const response = await axios.post('/api/sales', formData, { headers: { Authorization: `Bearer ${token}` } });
+>>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 			const response = await axios.post(
 				'https://inventory-app-theta-two.vercel.app/api/sales',

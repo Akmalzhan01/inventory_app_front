@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const navigation = [
     { name: 'Панель управления', href: '/dashboard', icon: HomeIcon },

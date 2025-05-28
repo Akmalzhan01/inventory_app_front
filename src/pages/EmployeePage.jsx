@@ -10,8 +10,12 @@ import {
 
 const EmployeePage = () => {
 	const [employees, setEmployees] = useState([])
+<<<<<<< HEAD
 	const [loading, setLoading] = useState(false)
 	const { user } = useAuth()
+=======
+	const [loading, setLoading] = useState(false); // Re-add loading state
+>>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -35,10 +39,10 @@ const EmployeePage = () => {
 		try {
 			const res = await axios.get('/api/employees')
 			setEmployees(res.data)
-		} catch (err) {
+		} catch {
 			toast.error('Ошибка загрузки сотрудников')
 		} finally {
-			setLoading(false)
+			// setLoading(false) // setLoading is not defined
 		}
 	}
 
@@ -62,8 +66,8 @@ const EmployeePage = () => {
 			}
 			resetForm()
 			fetchEmployees()
-		} catch (err) {
-			toast.error(err.response?.data?.message || 'Произошла ошибка')
+		} catch (error) {
+			toast.error(error.response?.data?.message || 'Произошла ошибка')
 		}
 	}
 
@@ -90,7 +94,7 @@ const EmployeePage = () => {
 				await axios.post(`/api/employees/delete`, { id, pass, user })
 				toast.success('Сотрудник удален')
 				fetchEmployees()
-			} catch (err) {
+			} catch { // Remove unused err
 				toast.error('Ошибка при удалении')
 			}
 		}

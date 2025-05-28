@@ -37,7 +37,7 @@ const param = useParams()
 
         <div className="mt-1 flex justify-between items-center">
           <span className="text-gray-600">Narx:</span>
-          <span className="font-medium">{product.price?.toLocaleString() || '0'} so'm</span>
+          <span className="font-medium">{product.price?.toLocaleString() || '0'} so&apos;m</span>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ const param = useParams()
           Tahrirlash
         </button>
         <button className="text-red-600 hover:text-red-800 text-sm font-medium">
-          O'chirish
+          O&apos;chirish
         </button>
       </div>
     </div>

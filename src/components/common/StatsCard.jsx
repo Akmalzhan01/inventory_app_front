@@ -1,5 +1,3 @@
-import React from 'react';
-
 const StatsCard = ({ title, value, icon, color = 'bg-blue-100 text-blue-800', trend, loading = false }) => {
   // Trend uchun klass va ikonka aniqlash
   const getTrendClasses = () => {
