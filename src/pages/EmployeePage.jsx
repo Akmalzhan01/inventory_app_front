@@ -10,12 +10,8 @@ import {
 
 const EmployeePage = () => {
 	const [employees, setEmployees] = useState([])
-<<<<<<< HEAD
 	const [loading, setLoading] = useState(false)
-	const { user } = useAuth()
-=======
-	const [loading, setLoading] = useState(false); // Re-add loading state
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
+	const { user } = useAuth()	
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -94,7 +90,8 @@ const EmployeePage = () => {
 				await axios.post(`/api/employees/delete`, { id, pass, user })
 				toast.success('Сотрудник удален')
 				fetchEmployees()
-			} catch { // Remove unused err
+			} catch {
+				// Remove unused err
 				toast.error('Ошибка при удалении')
 			}
 		}
