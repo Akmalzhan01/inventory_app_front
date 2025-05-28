@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import axios from '../utils/axiosConfig'
 import { toast } from 'react-toastify'
-=======
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import axios from '../utils/axiosConfig';
-import { toast } from 'react-toastify';
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 import {
 	PlusIcon,
 	TrashIcon,
@@ -18,7 +11,6 @@ import {
 } from '@heroicons/react/24/outline'
 
 const SalaryPage = () => {
-<<<<<<< HEAD
 	const { user } = useAuth()
 	const [salaries, setSalaries] = useState([])
 	const [employees, setEmployees] = useState([])
@@ -29,19 +21,6 @@ const SalaryPage = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [currentSalary, setCurrentSalary] = useState(null)
 	const [isProcessing, setIsProcessing] = useState(false)
-=======
-  const { user } = useAuth();
-  const [salaries, setSalaries] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth] = useState(new Date().getMonth() + 1); // setSelectedMonth removed
-  const [selectedPaymentMonth, setSelectedPaymentMonth] = useState('');
-  // selectedPaymentDate and setSelectedPaymentDate removed
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentSalary, setCurrentSalary] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 	const [formData, setFormData] = useState({
 		employee: {
