@@ -1,380 +1,440 @@
-import { useState, useEffect } from 'react';
-import axios from '../../utils/axiosConfig';
-import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react'
+import axios from '../../utils/axiosConfig'
+import { useAuth } from '../../context/AuthContext'
+import { toast } from 'react-toastify'
 
+// eslint-disable-next-line react/prop-types
 const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
-  const { user } = useAuth();
-  const [products, setProducts] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    customer: '',
-    items: [{ product: '', quantity: 1, price: 0 }],
-    isCredit: false,
-    paidAmount: 0,
-    notes: '',
-    seller: user._id
-  });
+	const { user } = useAuth()
+	const [products, setProducts] = useState([])
+	const [customers, setCustomers] = useState([])
+	const [loading, setLoading] = useState(true)
+	const [formData, setFormData] = useState({
+		customer: '',
+		items: [{ product: '', quantity: 1, price: 0, name: '' }],
+		isCredit: false,
+		paidAmount: 0,
+		paymentMethod: 'cash',
+		notes: '',
+		seller: user._id,
+		grandTotal: 0,
+	})
 
-  // Mahsulotlar va mijozlarni yuklash
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+	// Mahsulotlar va mijozlarni yuklash
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setLoading(true)
+				const token = localStorage.getItem('token')
 
-        // 1. Tokenni olish va tekshirish
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('Токен авторизации не найден');
-        }
+				const config = {
+					headers: {
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				}
 
-        // 2. So'rovlar uchun konfiguratsiya
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        };
+				const [productsRes, customersRes] = await Promise.all([
+					axios.get('/api/products?limit=1000', config),
+					axios.get('/api/customers?limit=1000', config),
+				])
 
-        // 3. Parallel so'rovlar
-        const [productsRes, customersRes] = await Promise.all([
-          axios.get('/api/products', config),
-          axios.get('/api/customers', config)
-        ]);
+				setProducts(productsRes.data.data || productsRes.data)
+				setCustomers(customersRes.data.data || customersRes.data)
+			} catch (error) {
+				console.error('Maʼlumotlarni yuklashda xato:', error)
 
-        // 4. Ma'lumotlarni tekshirish
-        if (!productsRes.data || !customersRes.data) {
-          throw new Error('Данные не возвращены');
-        }
+				if (error.response) {
+					switch (error.response.status) {
+						case 401:
+							toast.error('Sessiya muddati tugagan. Iltimos, qayta kiring.')
+							localStorage.removeItem('token')
+							window.location.href = '/login'
+							break
+						case 403:
+							toast.error('Sizda bu amalni bajarish uchun ruxsat yoʻq')
+							break
+						default:
+							toast.error(error.response.data?.message || 'Server xatosi')
+					}
+				} else {
+					toast.error('Tarmoq xatosi. Iltimos, ulanishni tekshiring.')
+				}
+			} finally {
+				setLoading(false)
+			}
+		}
 
-        setProducts(productsRes.data);
-        setCustomers(customersRes.data);
+		fetchData()
+	}, [])
 
-      } catch (error) {
-        console.error('Ошибка загрузки данных:', error);
+	// Mahsulot narxlarini yangilash
+	useEffect(() => {
+		const updatedItems = formData.items.map(item => {
+			const selectedProduct = products.find(p => p._id === item.product)
+			return {
+				...item,
+				price: selectedProduct ? selectedProduct.price : 0,
+				name: selectedProduct ? selectedProduct.name : '',
+			}
+		})
 
-        // 5. Xato turlari bo'yicha ishlov berish
-        if (error.response) {
-          switch (error.response.status) {
-            case 401:
-              toast.error('Доступ запрещен. Пожалуйста, войдите в систему снова.');
-              localStorage.removeItem('token');
-              window.location.href = '/login';
-              break;
-            case 403:
-              toast.error('У вас нет разрешения на выполнение этого действия.');
-              break;
-            default:
-              toast.error(error.response.data?.message || 'Ошибка сервера');
-          }
-        } else {
-          toast.error('Ошибка подключения к Интернету или сервера');
-        }
+		const grandTotal = updatedItems.reduce(
+			(sum, item) => sum + item.price * item.quantity,
+			0
+		)
 
-      } finally {
-        setLoading(false);
-      }
-    };
+		setFormData(prev => ({
+			...prev,
+			items: updatedItems,
+			grandTotal,
+		}))
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [formData.items.map(item => item.product).join()])
 
-    fetchData();
-  }, []);
+	// Umumiy summani hisoblash
+	const totalAmount = formData.items.reduce(
+		(sum, item) => sum + item.price * item.quantity,
+		0
+	)
 
-  // Mahsulot narxini yangilash
-  useEffect(() => {
-    const updatedItems = formData.items.map(item => {
-      const selectedProduct = products.find(p => p._id === item.product);
-      return {
-        ...item,
-        price: selectedProduct ? selectedProduct.price : 0
-      };
-    });
-    setFormData(prev => ({ ...prev, items: updatedItems }));
-  }, [formData.items.map(item => item.product).join()]);
+	// Forma o'zgarishlarini boshqarish
+	const handleChange = e => {
+		const { name, value, type, checked } = e.target
+		setFormData(prev => ({
+			...prev,
+			[name]: type === 'checkbox' ? checked : value,
+		}))
+	}
 
-  // Jami summani hisoblash
-  const totalAmount = formData.items.reduce(
-    (sum, item) => sum + (item.price * item.quantity), 0
-  );
+	// Mahsulot o'zgarishlarini boshqarish
+	const handleItemChange = (index, e) => {
+		const { name, value } = e.target
+		const updatedItems = [...formData.items]
+		updatedItems[index] = {
+			...updatedItems[index],
+			[name]: name === 'quantity' ? parseInt(value) || 0 : value,
+		}
 
-  // Inputlarni boshqarish
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
+		// Agar mahsulot tanlangan bo'lsa, uning nomini ham yangilash
+		if (name === 'product') {
+			const selectedProduct = products.find(p => p._id === value)
+			if (selectedProduct) {
+				updatedItems[index].name = selectedProduct.name
+				updatedItems[index].price = selectedProduct.price
+			}
+		}
 
-  // Mahsulot qatorini o'zgartirish
-  const handleItemChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedItems = [...formData.items];
-    updatedItems[index] = {
-      ...updatedItems[index],
-      [name]: name === 'quantity' ? parseInt(value) || 0 : value
-    };
-    setFormData(prev => ({ ...prev, items: updatedItems }));
-  };
+		setFormData(prev => ({
+			...prev,
+			items: updatedItems,
+			grandTotal: updatedItems.reduce(
+				(sum, item) => sum + item.price * item.quantity,
+				0
+			),
+		}))
+	}
 
-  // Yangi mahsulot qatori qo'shish
-  const addItemRow = () => {
-    setFormData(prev => ({
-      ...prev,
-      items: [...prev.items, { product: '', quantity: 1, price: 0 }]
-    }));
-  };
+	// Yangi mahsulot qatorini qo'shish
+	const addItemRow = () => {
+		setFormData(prev => ({
+			...prev,
+			items: [...prev.items, { product: '', quantity: 1, price: 0, name: '' }],
+		}))
+	}
 
-  // Mahsulot qatorini o'chirish
-  const removeItemRow = (index) => {
-    if (formData.items.length > 1) {
-      const updatedItems = formData.items.filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, items: updatedItems }));
-    }
-  };
+	// Mahsulot qatorini olib tashlash
+	const removeItemRow = index => {
+		if (formData.items.length > 1) {
+			const updatedItems = formData.items.filter((_, i) => i !== index)
+			const grandTotal = updatedItems.reduce(
+				(sum, item) => sum + item.price * item.quantity,
+				0
+			)
+			setFormData(prev => ({
+				...prev,
+				items: updatedItems,
+				grandTotal,
+			}))
+		}
+	}
 
-  // Formani yuborish
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+	// Formani yuborish
+	const handleSubmit = async e => {
+		e.preventDefault()
 
-    try {
-      setLoading(true);
+		// Mahsulotlarni tekshirish
+		if (formData.items.some(item => !item.product || item.quantity < 1)) {
+			toast.error('Iltimos, toʻgʻri mahsulotlar va miqdorni tanlang')
+			return
+		}
 
-      // 1. Tokenni olish
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Токен авторизации не найден');
-      }
+		try {
+			setLoading(true)
+			const token = localStorage.getItem('token')
 
-      // 2. So'rov tayyorlash
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      };
+			const config = {
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			}
 
-      // 3. Ma'lumotlarni tekshirish
-      // if (!formData.product || !formData.customer || !formData.quantity) {
-      //   throw new Error('Заполните все обязательные поля.');
-      // }
+			// To'lov maʼlumotlarini tayyorlash
+			const paymentData = {
+				total: totalAmount,
+				grandTotal: totalAmount, // Backend talab qilgan yangi maydon
+				isCredit: formData.isCredit,
+				paymentMethod: formData.paymentMethod,
+				paidAmount: formData.isCredit ? formData.paidAmount : totalAmount,
+				paymentHistory:
+					formData.isCredit && formData.paidAmount > 0
+						? [
+								{
+									amount: formData.paidAmount,
+									paymentMethod: formData.paymentMethod,
+									receivedBy: user._id,
+									notes: formData.notes,
+								},
+						  ]
+						: [],
+			}
 
-      // 4. POST so'rovini yuborish
-      const response = await axios.post('/api/sales', formData);
+			// So'rov maʼlumotlarini tayyorlash
+			const requestData = {
+				customer: formData.customer,
+				items: formData.items.map(item => ({
+					product: item.product,
+					name: item.name, // Backend talab qilgan yangi maydon
+					quantity: item.quantity,
+					price: item.price,
+				})),
+				seller: user._id,
+				notes: formData.notes,
+				...paymentData,
+			}
+			console.log(requestData)
 
-      // 5. Muvaffaqiyatli javobni qayta ishlash
-      if (response.data.success) {
-        toast.success('Продажа успешно добавлена');
-        // onSuccess; // Yangilash funksiyasi
-        // resetForm(); // Formani tozalash
-        setShowForm(false); // Formani yopish
-      } else {
-        throw new Error(response.data.message || 'Ошибка добавления продажи');
-      }
+			const response = await axios.post(
+				'https://inventory-app-theta-two.vercel.app/api/sales',
+				requestData,
+				config
+			)
+			if (response.data.success) {
+				toast.success('Sotuv muvaffaqiyatli yaratildi!')
+				if (onSuccess) onSuccess()
+				setShowForm(false)
+			} else {
+				throw new Error(response.data.message || 'Sotuvni yaratishda xato')
+			}
+		} catch (error) {
+			console.error('Sotuvni yaratishda xato:', error)
 
-    } catch (error) {
-      console.error('Ошибка добавления продаж:', error);
+			if (error.response) {
+				switch (error.response.status) {
+					case 400:
+						toast.error(error.response.data?.message || 'Validatsiya xatosi')
+						break
+					case 401:
+						toast.error('Sessiya muddati tugagan. Iltimos, qayta kiring.')
+						localStorage.removeItem('token')
+						window.location.href = '/login'
+						break
+					case 500:
+						toast.error('Server xatosi. Iltimos, keyinroq urinib koʻring.')
+						break
+					default:
+						toast.error(error.response.data?.message || 'Xato yuz berdi')
+				}
+			} else {
+				toast.error(error.message || 'Tarmoq xatosi')
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
 
-      // 6. Xato turlarini boshqarish
-      if (error.response) {
-        switch (error.response.status) {
-          case 400:
-            toast.error(error.response.data?.message || 'Ошибка добавления продаж');
-            break;
-          case 401:
-            toast.error('Доступ запрещен. Пожалуйста, войдите в систему снова.');
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-            break;
-          case 500:
-            toast.error('Ошибка сервера. Попробуйте еще раз позже.');
-            break;
-          default:
-            toast.error(error.response.data?.message || 'Произошла ошибка.');
-        }
-      } else {
-        toast.error(error.message || 'Ошибка подключения к Интернету или сервера');
-      }
+	if (loading) {
+		return <div className='text-center py-8'>Yuklanmoqda...</div>
+	}
 
-    } finally {
-      setLoading(false);
-    }
-  };
+	return (
+		<div className='bg-white p-6 rounded-lg shadow-md'>
+			<h2 className='text-xl font-bold mb-4'>Yangi sotuv</h2>
 
-  if (loading) {
-    return <div className="text-center py-8">Загрузка...</div>;
-  }
+			<form onSubmit={handleSubmit}>
+				{/* Mijozni tanlash */}
+				<div className='mb-4'>
+					<label className='block text-gray-700 mb-2'>Mijoz</label>
+					<select
+						name='customer'
+						value={formData.customer}
+						onChange={handleChange}
+						className='w-full p-2 border rounded'
+						required
+					>
+						<option value=''>Mijozni tanlang...</option>
+						{customers.map(customer => (
+							<option key={customer._id} value={customer._id}>
+								{customer.name} ({customer.phone})
+							</option>
+						))}
+					</select>
+				</div>
 
+				{/* Mahsulotlar ro'yxati */}
+				<div className='mb-4'>
+					<label className='block text-gray-700 mb-2'>Mahsulotlar</label>
+					{formData.items.map((item, index) => (
+						<div key={index} className='flex gap-2 mb-2 items-center'>
+							<select
+								name='product'
+								value={item.product}
+								onChange={e => handleItemChange(index, e)}
+								className='flex-1 p-2 border rounded'
+								required
+							>
+								<option value=''>Mahsulotni tanlang...</option>
+								{products.map(product => (
+									<option
+										key={product._id}
+										value={product._id}
+										disabled={product.quantity <= 0}
+									>
+										{product.name} - Qoldiq: {product.quantity} dona, narxi: $
+										{product.price}
+									</option>
+								))}
+							</select>
 
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Новая продажа</h2>
+							<input
+								type='number'
+								name='quantity'
+								min='1'
+								value={item.quantity}
+								onChange={e => handleItemChange(index, e)}
+								className='w-20 p-2 border rounded'
+								required
+							/>
 
-      <form onSubmit={handleSubmit}>
-        {/* Mijoz tanlash */}
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Клиент</label>
-          <select
-            name="customer"
-            value={formData.customer}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">Выберите клиента...</option>
-            {customers.map(customer => (
-              <option key={customer._id} value={customer._id}>
-                {customer.name} ({customer.phone})
-              </option>
-            ))}
-          </select>
-        </div>
+							<span className='w-32 p-2 border rounded bg-gray-100'>
+								${(item.price * item.quantity).toFixed(2)}
+							</span>
 
-        {/* Mahsulotlar ro'yxati */}
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Продукция</label>
-          {formData.items.map((item, index) => (
-            <div key={index} className="flex space-x-2 mb-2">
-              <select
-                name="product"
-                value={item.product}
-                onChange={(e) => handleItemChange(index, e)}
-                className="flex-1 p-2 border rounded"
-                required
-              >
-                <option value="">Выберите продукт...</option>
-                {products.map(product => (
-                  <option
-                    key={product._id}
-                    value={product._id}
-                    disabled={product.quantity <= 0}
-                  >
-                    {product.name} - (Остаток: {product.quantity})
-                  </option>
-                ))}
-              </select>
+							{formData.items.length > 1 && (
+								<button
+									type='button'
+									onClick={() => removeItemRow(index)}
+									className='bg-red-500 text-white px-3 rounded h-10'
+								>
+									×
+								</button>
+							)}
+						</div>
+					))}
 
-              <input
-                type="number"
-                name="quantity"
-                min="1"
-                value={item.quantity}
-                onChange={(e) => handleItemChange(index, e)}
-                className="w-20 p-2 border rounded"
-                required
-              />
-              <input
-                type="number"
-                name="price"
-                min="0"
-                value={item.price}
-                onChange={(e) => handleItemChange(index, e)}
-                className="w-20 p-2 border rounded"
-                required
-              />
+					<button
+						type='button'
+						onClick={addItemRow}
+						className='mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm'
+					>
+						+ Mahsulot qoshish
+					</button>
+				</div>
 
-              <input
-                type="text"
-                value={(item.price * item.quantity).toLocaleString() + ' $'}
-                className="w-32 p-2 border rounded bg-gray-100"
-                readOnly
-              />
+				{/* To'lov turi */}
+				<div className='mb-4'>
+					<label className='flex items-center space-x-2'>
+						<input
+							type='checkbox'
+							name='isCredit'
+							checked={formData.isCredit}
+							onChange={handleChange}
+							className='rounded'
+						/>
+						<span>Nasiya sotuv</span>
+					</label>
+				</div>
 
-              {formData.items.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeItemRow(index)}
-                  className="bg-red-500 text-white px-3 rounded"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          ))}
+				{/* To'lov usuli */}
+				<div className='mb-4'>
+					<label className='block text-gray-700 mb-2'>Tolov usuli</label>
+					<select
+						name='paymentMethod'
+						value={formData.paymentMethod}
+						onChange={handleChange}
+						className='w-full p-2 border rounded'
+					>
+						<option value='cash'>Naqd pul</option>
+						<option value='card'>Plastik karta</option>
+						<option value='transfer'>Bank orqali</option>
+					</select>
+				</div>
 
-          <button
-            type="button"
-            onClick={addItemRow}
-            className="mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm"
-          >
-            + Добавить продукт
-          </button>
-        </div>
+				{/* To'langan summa (nasiya sotuvlar uchun) */}
+				{formData.isCredit && (
+					<div className='mb-4'>
+						<label className='block text-gray-700 mb-2'>Tolangan summa</label>
+						<input
+							type='number'
+							name='paidAmount'
+							min='0'
+							max={totalAmount}
+							value={formData.paidAmount}
+							onChange={handleChange}
+							className='w-full p-2 border rounded'
+						/>
+						<div className='text-sm text-gray-500 mt-1'>
+							Qoldiq: ${(totalAmount - formData.paidAmount).toFixed(2)}
+						</div>
+					</div>
+				)}
 
-        {/* To'lov turi */}
-        <div className="mb-4">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              name="isCredit"
-              checked={formData.isCredit}
-              onChange={handleChange}
-              className="rounded"
-            />
-            <span>Продажа в кредит</span>
-          </label>
-        </div>
+				{/* Izohlar */}
+				<div className='mb-4'>
+					<label className='block text-gray-700 mb-2'>Izohlar</label>
+					<textarea
+						name='notes'
+						value={formData.notes}
+						onChange={handleChange}
+						className='w-full p-2 border rounded'
+						rows='2'
+					/>
+				</div>
 
-        {/* To'lov summasi */}
-        {formData.isCredit && (
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Сумма oплаченная</label>
-            <input
-              type="number"
-              name="paidAmount"
-              min="0"
-              max={totalAmount}
-              value={formData.paidAmount}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
-            />
-            <div className="text-sm text-gray-500 mt-1">
-              Остаток: {(totalAmount - formData.paidAmount).toLocaleString()} $
-            </div>
-          </div>
-        )}
+				{/* Umumiy maʼlumot */}
+				<div className='mb-4 p-3 bg-gray-100 rounded'>
+					<div className='font-bold'>
+						Umumiy summa: ${totalAmount.toFixed(2)}
+					</div>
+					{formData.isCredit && (
+						<div className='text-sm'>
+							Tolangan: ${formData.paidAmount.toFixed(2)} | Qarz: $
+							{(totalAmount - formData.paidAmount).toFixed(2)}
+						</div>
+					)}
+				</div>
 
-        {/* Izohlar */}
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Примечания</label>
-          <textarea
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows="2"
-          />
-        </div>
+				{/* Tugmalar */}
+				<div className='flex justify-end space-x-3'>
+					<button
+						type='button'
+						onClick={onCancel}
+						className='px-4 py-2 border rounded hover:bg-gray-100'
+					>
+						Bekor qilish
+					</button>
+					<button
+						type='submit'
+						className='px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700'
+						disabled={loading}
+					>
+						{loading ? 'Jarayonda...' : 'Sotuvni yaratish'}
+					</button>
+				</div>
+			</form>
+		</div>
+	)
+}
 
-        {/* Jami summa */}
-        <div className="mb-4 p-3 bg-gray-100 rounded">
-          <div className="font-bold">Общая сумма: {totalAmount.toLocaleString()} $</div>
-          {formData.isCredit && (
-            <div className="text-sm">
-              Оплаченный: {formData.paidAmount.toLocaleString()} $ |
-              Остаток: {(totalAmount - formData.paidAmount).toLocaleString()} $
-            </div>
-          )}
-        </div>
-
-        {/* Tugmalar */}
-        <div className="flex justify-end space-x-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border rounded hover:bg-gray-100"
-          >
-            Отмена
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Добавить продажу
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-export default SaleForm;
+export default SaleForm

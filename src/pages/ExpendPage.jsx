@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
 import ProductForm from '../components/expend/ExprendForm'
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../context/AuthContext'
 
 const ProductList = () => {
 	const [products, setProducts] = useState([])
@@ -9,6 +10,7 @@ const ProductList = () => {
 	const [error, setError] = useState(null)
 	const [editingProduct, setEditingProduct] = useState(null)
 	const [showForm, setShowForm] = useState(false)
+	const { user } = useAuth()
 
 	useEffect(() => {
 		fetchProducts()
@@ -17,9 +19,7 @@ const ProductList = () => {
 	const fetchProducts = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.get(
-				'https://inventory-app-theta-two.vercel.app/api/expend'
-			)
+			const response = await axios.get('/api/expend')
 			setProducts(response.data)
 			setLoading(false)
 		} catch (err) {
@@ -29,10 +29,9 @@ const ProductList = () => {
 	}
 
 	const handleDelete = async id => {
+		let pass = prompt('Пароль')
 		try {
-			await axios.delete(
-				`https://inventory-app-theta-two.vercel.app/api/expend/${id}`
-			)
+			await axios.post(`/api/expend/delete`, { id, pass, user })
 			fetchProducts()
 		} catch (err) {
 			console.error('Ошибка при удалении продукта:', err)

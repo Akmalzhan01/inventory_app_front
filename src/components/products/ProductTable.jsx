@@ -60,16 +60,21 @@ const ProductTable = ({ products: initialProducts, loading, onRefresh }) => {
 	// Delete product
 	const deleteProduct = async productId => {
 		if (!window.confirm('Вы уверены, что хотите удалить этот продукт?')) return
-
+		let pass = prompt('Пароль')
 		try {
-			await axios.delete(`/api/products/${productId}`, {
-				headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-			})
+			const data = await axios.post(
+				`/api/products/delete`,
+				{ productId, pass, user },
+				{
+					headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+				}
+			)
 			const updatedProducts = products.filter(
 				product => product._id !== productId
 			)
 			setProducts(updatedProducts)
 			toast.success('Продукт успешно удален.')
+			console.log(data)
 		} catch (error) {
 			toast.error(error.response?.data?.message || 'Ошибка удаления продукта')
 		}

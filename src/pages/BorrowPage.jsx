@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../context/AuthContext'
 
 function BorrowPage() {
 	const [borrows, setBorrows] = useState([])
@@ -9,6 +9,7 @@ function BorrowPage() {
 	const [showEditModal, setShowEditModal] = useState(false)
 	const [showPartialPaymentModal, setShowPartialPaymentModal] = useState(false)
 	const [selectedBorrow, setSelectedBorrow] = useState(null)
+	const { user } = useAuth()
 	const [formData, setFormData] = useState({
 		lenderName: '',
 		returnDate: '',
@@ -139,8 +140,9 @@ function BorrowPage() {
 	// Delete borrow record
 	const handleDelete = async id => {
 		if (window.confirm('Вы уверены, что хотите удалить эту запись?')) {
+			let pass = prompt('Пароль')
 			try {
-				await axios.delete(`/api/borrows/${id}`)
+				await axios.post(`/api/borrows/delete`, { id, pass, user })
 				fetchBorrows()
 				setShowDetailModal(false)
 			} catch (err) {

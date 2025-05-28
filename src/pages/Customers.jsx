@@ -120,8 +120,9 @@ const Customers = () => {
 
 	const handleDelete = async id => {
 		if (window.confirm('Вы уверены, что хотите удалить этого клиента?')) {
+			let pass = prompt('Пароль')
 			try {
-				await axios.delete(`/api/customers/${id}`)
+				await axios.post(`/api/customers/delete`, { id, pass, user })
 				toast.success('Клиент успешно удален')
 				fetchCustomers()
 			} catch (error) {

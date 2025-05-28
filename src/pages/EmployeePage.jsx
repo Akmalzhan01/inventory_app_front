@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
 import { toast } from 'react-toastify'
+import { useAuth } from '../context/AuthContext'
 import {
 	PlusIcon,
 	PencilSquareIcon,
@@ -11,6 +11,7 @@ import {
 const EmployeePage = () => {
 	const [employees, setEmployees] = useState([])
 	const [loading, setLoading] = useState(false)
+	const { user } = useAuth()
 	const [formData, setFormData] = useState({
 		firstName: '',
 		lastName: '',
@@ -84,8 +85,9 @@ const EmployeePage = () => {
 
 	const handleDelete = async id => {
 		if (window.confirm('Вы действительно хотите удалить этого сотрудника?')) {
+			let pass = prompt('Пароль')
 			try {
-				await axios.delete(`/api/employees/${id}`)
+				await axios.post(`/api/employees/delete`, { id, pass, user })
 				toast.success('Сотрудник удален')
 				fetchEmployees()
 			} catch (err) {
