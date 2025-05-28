@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
-<<<<<<< HEAD
 import { useAuth } from '../context/AuthContext'
-=======
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 function BorrowPage() {
 	const [borrows, setBorrows] = useState([])

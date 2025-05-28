@@ -103,13 +103,6 @@ const Products = () => {
         )}
       </div>
 
-      {/* <SearchBar 
-        placeholder="Поиск товаров..." 
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className='mb-8'
-      /> */}
-
       <ProductTable 
         products={currentProducts} 
         loading={loading} 

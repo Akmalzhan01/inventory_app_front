@@ -305,7 +305,6 @@ const SaleTable = () => {
 	const refreshData = () => {
 		fetchSales()
 	}
-	console.log(sales)
 
 	return (
 		<div className='bg-white rounded-lg shadow-md overflow-hidden'>

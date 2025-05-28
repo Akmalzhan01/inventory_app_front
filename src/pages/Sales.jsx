@@ -111,29 +111,7 @@ const Sales = () => {
 					setShowForm={setShowForm}
 				/>
 			) : (
-				<>
-					{/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <StatsCard 
-              title="Общий продаж" 
-              value={sales.length} 
-              icon="💰" 
-              color="bg-blue-100 text-blue-800"
-            />
-            <StatsCard 
-              title="Продажи за наличные" 
-              // value={sales.sales.filter(s => !s.isCredit).length} 
-              icon="💵" 
-              color="bg-green-100 text-green-800"
-            />
-            <StatsCard 
-              title="Кредитная продажи" 
-              // value={sales.filter(s => s.isCredit).length} 
-              icon="📝" 
-              color="bg-purple-100 text-purple-800"
-            />
-          </div> */}
-					<SaleTable sales={sales} loading={loading} onCancel={cancelSale} />
-				</>
+				<SaleTable sales={sales} loading={loading} onCancel={cancelSale} />
 			)}
 		</div>
 	)

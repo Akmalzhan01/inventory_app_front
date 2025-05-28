@@ -62,7 +62,6 @@ const SalaryPage = () => {
 		}
 	}
 
-<<<<<<< HEAD
 	const fetchSalaries = async () => {
 		setLoading(true)
 		try {
@@ -80,30 +79,6 @@ const SalaryPage = () => {
 			setLoading(false)
 		}
 	}
-=======
-    } catch {
-      toast.error('Не удалось загрузить список сотрудников');
-    }
-  };
-
-  const fetchSalaries = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        year: selectedYear,
-        month: selectedMonth,
-        paymentMonth: selectedPaymentMonth
-      };
-      
-      const res = await axios.get('/api/salaries', { params });
-      setSalaries(res.data);
-    } catch {
-      toast.error('Не удалось загрузить данные о зарплатах');
-    } finally {
-      setLoading(false);
-    }
-  };
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 	const handleInputChange = e => {
 		const { name, value } = e.target
