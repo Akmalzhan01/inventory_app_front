@@ -158,23 +158,9 @@ const SalaryPage = () => {
 		}
 	}
 
-<<<<<<< HEAD
 	const openModal = () => {
 		setIsModalOpen(true)
 	}
-=======
-  const handleDelete = async (id) => {
-    if (window.confirm('Вы уверены, что хотите удалить эту запись о зарплате?')) {
-      try {
-        await axios.delete(`/api/salaries/${id}`);
-        toast.success('Запись о зарплате удалена');
-        fetchSalaries();
-      } catch {
-        toast.error('Не удалось удалить запись');
-      }
-    }
-  };
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 	const closeModal = () => {
 		setIsModalOpen(false)
@@ -263,7 +249,6 @@ const SalaryPage = () => {
 						</select>
 					</div>
 
-<<<<<<< HEAD
 					<button
 						onClick={openModal}
 						className='bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-700 transition-colors'
@@ -273,21 +258,6 @@ const SalaryPage = () => {
 					</button>
 				</div>
 			</div>
-=======
-            <select
-              value={selectedPaymentMonth}
-              onChange={(e) => setSelectedPaymentMonth(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
-            >
-              <option value="">To&apos;lov oyi</option>
-              {months.map(month => (
-                <option key={month.value} value={month.value}>
-                  {month.name.charAt(0).toUpperCase() + month.name.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 			<div className='bg-white shadow rounded-lg overflow-hidden'>
 				<div className='overflow-x-auto'>
@@ -374,7 +344,6 @@ const SalaryPage = () => {
 										</tr>
 									))}
 
-<<<<<<< HEAD
 									{/* Итоговая строка */}
 									<tr className='bg-gray-50 font-semibold'>
 										<td className='px-6 py-4 whitespace-nowrap' colSpan='2'>
@@ -413,42 +382,6 @@ const SalaryPage = () => {
 					</table>
 				</div>
 			</div>
-=======
-                  {/* Итоговая строка */}
-                  <tr className="bg-gray-50 font-semibold">
-                    {/* eslint-disable-next-line react/no-unescaped-entities */}
-                    <td className="px-6 py-4 whitespace-nowrap" colSpan="2">
-                      Итого за {months[selectedMonth - 1]?.name} {selectedYear}:
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ${totals.amount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ${totals.bonus.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ${totals.deductions.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-blue-600">
-                      ${totals.netSalary.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap" colSpan="2">
-                      {/* Пустое пространство для выравнивания */}
-                    </td>
-                  </tr>
-                </>
-              ) : (
-                <tr>
-                  <td className="px-6 py-4 text-center text-gray-500" colSpan="8">
-                    {loading ? "Загрузка данных&hellip;" : "Нет данных о зарплатах за выбранный период"}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 			{/* Модальное окно добавления/редактирования зарплаты */}
 			{isModalOpen && (
