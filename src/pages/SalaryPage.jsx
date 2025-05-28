@@ -136,7 +136,6 @@ const SalaryPage = () => {
 				toast.success('Зарплата успешно добавлена')
 			}
 
-<<<<<<< HEAD
 			closeModal()
 			fetchSalaries()
 		} catch (err) {
@@ -145,16 +144,6 @@ const SalaryPage = () => {
 			setIsProcessing(false)
 		}
 	}
-=======
-      closeModal();
-      fetchSalaries();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Ошибка сохранения данных');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
->>>>>>> 1d0cf1dd7001aadbc7d98c3aa3094d96959cccbb
 
 	const handleDelete = async id => {
 		window.confirm('Вы уверены, что хотите удалить эту запись о зарплате?')
