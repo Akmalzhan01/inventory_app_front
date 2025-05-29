@@ -257,6 +257,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 	if (loading) {
 		return <div className='text-center py-8'>Yuklanmoqda...</div>
 	}
+	console.log(products)
 
 	return (
 		<div className='bg-white p-6 rounded-lg shadow-md'>
@@ -306,7 +307,6 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 									</option>
 								))}
 							</select>
-
 							<input
 								type='number'
 								name='quantity'
@@ -315,12 +315,19 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 								onChange={e => handleItemChange(index, e)}
 								className='w-20 p-2 border rounded'
 								required
+							/>{' '}
+							<input
+								type='number'
+								name='price'
+								min='1'
+								placeholder='цена'
+								onChange={e => handleItemChange(index, e)}
+								className='w-20 p-2 border rounded'
+								required
 							/>
-
 							<span className='w-32 p-2 border rounded bg-gray-100'>
 								${(item.price * item.quantity).toFixed(2)}
 							</span>
-
 							{formData.items.length > 1 && (
 								<button
 									type='button'
