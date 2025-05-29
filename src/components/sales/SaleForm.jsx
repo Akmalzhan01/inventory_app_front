@@ -20,7 +20,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		grandTotal: 0,
 	})
 
-	// Mahsulotlar va mijozlarni yuklash
+	// Загрузка продуктов и клиентов
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -42,23 +42,23 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 				setProducts(productsRes.data.data || productsRes.data)
 				setCustomers(customersRes.data.data || customersRes.data)
 			} catch (error) {
-				console.error('Maʼlumotlarni yuklashda xato:', error)
+				console.error('Ошибка при загрузке данных:', error)
 
 				if (error.response) {
 					switch (error.response.status) {
 						case 401:
-							toast.error('Sessiya muddati tugagan. Iltimos, qayta kiring.')
+							toast.error('Сессия истекла. Пожалуйста, войдите снова.')
 							localStorage.removeItem('token')
 							window.location.href = '/login'
 							break
 						case 403:
-							toast.error('Sizda bu amalni bajarish uchun ruxsat yoʻq')
+							toast.error('У вас нет прав для выполнения этого действия')
 							break
 						default:
-							toast.error(error.response.data?.message || 'Server xatosi')
+							toast.error(error.response.data?.message || 'Ошибка сервера')
 					}
 				} else {
-					toast.error('Tarmoq xatosi. Iltimos, ulanishni tekshiring.')
+					toast.error('Сетевая ошибка. Пожалуйста, проверьте подключение.')
 				}
 			} finally {
 				setLoading(false)
@@ -68,7 +68,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		fetchData()
 	}, [])
 
-	// Mahsulot narxlarini yangilash
+	// Обновление цен продуктов
 	useEffect(() => {
 		const updatedItems = formData.items.map(item => {
 			const selectedProduct = products.find(p => p._id === item.product)
@@ -92,13 +92,13 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [formData.items.map(item => item.product).join()])
 
-	// Umumiy summani hisoblash
+	// Расчет общей суммы
 	const totalAmount = formData.items.reduce(
 		(sum, item) => sum + item.price * item.quantity,
 		0
 	)
 
-	// Forma o'zgarishlarini boshqarish
+	// Обработка изменений формы
 	const handleChange = e => {
 		const { name, value, type, checked } = e.target
 		setFormData(prev => ({
@@ -107,7 +107,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		}))
 	}
 
-	// Mahsulot o'zgarishlarini boshqarish
+	// Обработка изменений товаров
 	const handleItemChange = (index, e) => {
 		const { name, value } = e.target
 		const updatedItems = [...formData.items]
@@ -116,7 +116,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 			[name]: name === 'quantity' ? parseInt(value) || 0 : value,
 		}
 
-		// Agar mahsulot tanlangan bo'lsa, uning nomini ham yangilash
+		// Если выбран продукт, обновляем его название
 		if (name === 'product') {
 			const selectedProduct = products.find(p => p._id === value)
 			if (selectedProduct) {
@@ -135,7 +135,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		}))
 	}
 
-	// Yangi mahsulot qatorini qo'shish
+	// Добавление новой строки товара
 	const addItemRow = () => {
 		setFormData(prev => ({
 			...prev,
@@ -143,7 +143,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		}))
 	}
 
-	// Mahsulot qatorini olib tashlash
+	// Удаление строки товара
 	const removeItemRow = index => {
 		if (formData.items.length > 1) {
 			const updatedItems = formData.items.filter((_, i) => i !== index)
@@ -159,13 +159,13 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 		}
 	}
 
-	// Formani yuborish
+	// Отправка формы
 	const handleSubmit = async e => {
 		e.preventDefault()
 
-		// Mahsulotlarni tekshirish
+		// Проверка товаров
 		if (formData.items.some(item => !item.product || item.quantity < 1)) {
-			toast.error('Iltimos, toʻgʻri mahsulotlar va miqdorni tanlang')
+			toast.error('Пожалуйста, выберите правильные товары и количество')
 			return
 		}
 
@@ -180,10 +180,10 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 				},
 			}
 
-			// To'lov maʼlumotlarini tayyorlash
+			// Подготовка данных о платеже
 			const paymentData = {
 				total: totalAmount,
-				grandTotal: totalAmount, // Backend talab qilgan yangi maydon
+				grandTotal: totalAmount, // Новое поле, требуемое бэкендом
 				isCredit: formData.isCredit,
 				paymentMethod: formData.paymentMethod,
 				paidAmount: formData.isCredit ? formData.paidAmount : totalAmount,
@@ -200,12 +200,12 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 						: [],
 			}
 
-			// So'rov maʼlumotlarini tayyorlash
+			// Подготовка данных запроса
 			const requestData = {
 				customer: formData.customer,
 				items: formData.items.map(item => ({
 					product: item.product,
-					name: item.name, // Backend talab qilgan yangi maydon
+					name: item.name, // Новое поле, требуемое бэкендом
 					quantity: item.quantity,
 					price: item.price,
 				})),
@@ -221,33 +221,33 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 				config
 			)
 			if (response.data.success) {
-				toast.success('Sotuv muvaffaqiyatli yaratildi!')
+				toast.success('Продажа успешно создана!')
 				if (onSuccess) onSuccess()
 				setShowForm(false)
 			} else {
-				throw new Error(response.data.message || 'Sotuvni yaratishda xato')
+				throw new Error(response.data.message || 'Ошибка при создании продажи')
 			}
 		} catch (error) {
-			console.error('Sotuvni yaratishda xato:', error)
+			console.error('Ошибка при создании продажи:', error)
 
 			if (error.response) {
 				switch (error.response.status) {
 					case 400:
-						toast.error(error.response.data?.message || 'Validatsiya xatosi')
+						toast.error(error.response.data?.message || 'Ошибка валидации')
 						break
 					case 401:
-						toast.error('Sessiya muddati tugagan. Iltimos, qayta kiring.')
+						toast.error('Сессия истекла. Пожалуйста, войдите снова.')
 						localStorage.removeItem('token')
 						window.location.href = '/login'
 						break
 					case 500:
-						toast.error('Server xatosi. Iltimos, keyinroq urinib koʻring.')
+						toast.error('Ошибка сервера. Пожалуйста, попробуйте позже.')
 						break
 					default:
-						toast.error(error.response.data?.message || 'Xato yuz berdi')
+						toast.error(error.response.data?.message || 'Произошла ошибка')
 				}
 			} else {
-				toast.error(error.message || 'Tarmoq xatosi')
+				toast.error(error.message || 'Сетевая ошибка')
 			}
 		} finally {
 			setLoading(false)
@@ -255,18 +255,18 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 	}
 
 	if (loading) {
-		return <div className='text-center py-8'>Yuklanmoqda...</div>
+		return <div className='text-center py-8'>Загрузка...</div>
 	}
 	console.log(products)
 
 	return (
 		<div className='bg-white p-6 rounded-lg shadow-md'>
-			<h2 className='text-xl font-bold mb-4'>Yangi sotuv</h2>
+			<h2 className='text-xl font-bold mb-4'>Новая продажа</h2>
 
 			<form onSubmit={handleSubmit}>
-				{/* Mijozni tanlash */}
+				{/* Выбор клиента */}
 				<div className='mb-4'>
-					<label className='block text-gray-700 mb-2'>Mijoz</label>
+					<label className='block text-gray-700 mb-2'>Клиент</label>
 					<select
 						name='customer'
 						value={formData.customer}
@@ -274,7 +274,7 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 						className='w-full p-2 border rounded'
 						required
 					>
-						<option value=''>Mijozni tanlang...</option>
+						<option value=''>Выберите клиента...</option>
 						{customers.map(customer => (
 							<option key={customer._id} value={customer._id}>
 								{customer.name} ({customer.phone})
@@ -283,9 +283,9 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 					</select>
 				</div>
 
-				{/* Mahsulotlar ro'yxati */}
+				{/* Список товаров */}
 				<div className='mb-4'>
-					<label className='block text-gray-700 mb-2'>Mahsulotlar</label>
+					<label className='block text-gray-700 mb-2'>Товары</label>
 					{formData.items.map((item, index) => (
 						<div key={index} className='flex gap-2 mb-2 items-center'>
 							<select
@@ -295,14 +295,14 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 								className='flex-1 p-2 border rounded'
 								required
 							>
-								<option value=''>Mahsulotni tanlang...</option>
+								<option value=''>Выберите товар...</option>
 								{products.map(product => (
 									<option
 										key={product._id}
 										value={product._id}
 										disabled={product.quantity <= 0}
 									>
-										{product.name} - Qoldiq: {product.quantity} dona, narxi: $
+										{product.name} - Остаток: {product.quantity} шт., цена: $
 										{product.price}
 									</option>
 								))}
@@ -345,11 +345,11 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 						onClick={addItemRow}
 						className='mt-2 bg-blue-500 text-white px-4 py-1 rounded text-sm'
 					>
-						+ Mahsulot qoshish
+						+ Добавить товар
 					</button>
 				</div>
 
-				{/* To'lov turi */}
+				{/* Тип оплаты */}
 				<div className='mb-4'>
 					<label className='flex items-center space-x-2'>
 						<input
@@ -359,29 +359,29 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 							onChange={handleChange}
 							className='rounded'
 						/>
-						<span>Nasiya sotuv</span>
+						<span>Продажа в кредит</span>
 					</label>
 				</div>
 
-				{/* To'lov usuli */}
+				{/* Способ оплаты */}
 				<div className='mb-4'>
-					<label className='block text-gray-700 mb-2'>Tolov usuli</label>
+					<label className='block text-gray-700 mb-2'>Способ оплаты</label>
 					<select
 						name='paymentMethod'
 						value={formData.paymentMethod}
 						onChange={handleChange}
 						className='w-full p-2 border rounded'
 					>
-						<option value='cash'>Naqd pul</option>
-						<option value='card'>Plastik karta</option>
-						<option value='transfer'>Bank orqali</option>
+						<option value='cash'>Наличные</option>
+						<option value='card'>Пластиковая карта</option>
+						<option value='transfer'>Банковский перевод</option>
 					</select>
 				</div>
 
-				{/* To'langan summa (nasiya sotuvlar uchun) */}
+				{/* Оплаченная сумма (для продаж в кредит) */}
 				{formData.isCredit && (
 					<div className='mb-4'>
-						<label className='block text-gray-700 mb-2'>Tolangan summa</label>
+						<label className='block text-gray-700 mb-2'>Оплаченная сумма</label>
 						<input
 							type='number'
 							name='paidAmount'
@@ -392,14 +392,14 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 							className='w-full p-2 border rounded'
 						/>
 						<div className='text-sm text-gray-500 mt-1'>
-							Qoldiq: ${(totalAmount - formData.paidAmount).toFixed(2)}
+							Остаток: ${(totalAmount - formData.paidAmount).toFixed(2)}
 						</div>
 					</div>
 				)}
 
-				{/* Izohlar */}
+				{/* Примечания */}
 				<div className='mb-4'>
-					<label className='block text-gray-700 mb-2'>Izohlar</label>
+					<label className='block text-gray-700 mb-2'>Примечания</label>
 					<textarea
 						name='notes'
 						value={formData.notes}
@@ -409,34 +409,34 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 					/>
 				</div>
 
-				{/* Umumiy maʼlumot */}
+				{/* Общая информация */}
 				<div className='mb-4 p-3 bg-gray-100 rounded'>
 					<div className='font-bold'>
-						Umumiy summa: ${totalAmount.toFixed(2)}
+						Общая сумма: ${totalAmount.toFixed(2)}
 					</div>
 					{formData.isCredit && (
 						<div className='text-sm'>
-							Tolangan: ${formData.paidAmount.toFixed(2)} | Qarz: $
+							Оплачено: ${formData.paidAmount.toFixed(2)} | Долг: $
 							{(totalAmount - formData.paidAmount).toFixed(2)}
 						</div>
 					)}
 				</div>
 
-				{/* Tugmalar */}
+				{/* Кнопки */}
 				<div className='flex justify-end space-x-3'>
 					<button
 						type='button'
 						onClick={onCancel}
 						className='px-4 py-2 border rounded hover:bg-gray-100'
 					>
-						Bekor qilish
+						Отмена
 					</button>
 					<button
 						type='submit'
 						className='px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700'
 						disabled={loading}
 					>
-						{loading ? 'Jarayonda...' : 'Sotuvni yaratish'}
+						{loading ? 'В процессе...' : 'Создать продажу'}
 					</button>
 				</div>
 			</form>
