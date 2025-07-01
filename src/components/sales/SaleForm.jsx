@@ -416,8 +416,8 @@ const SaleForm = ({ onSuccess, onCancel, setShowForm }) => {
 					</div>
 					{formData.isCredit && (
 						<div className='text-sm'>
-							Оплачено: ${formData.paidAmount.toFixed(2)} | Долг: $
-							{(totalAmount - formData.paidAmount).toFixed(2)}
+							Оплачено: ${formData.paidAmount} | Долг: $
+							{(totalAmount - formData.paidAmount)}
 						</div>
 					)}
 				</div>
